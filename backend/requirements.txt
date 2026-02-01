@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pandas
+numpy
+python-multipart
+openai
+scikit-learn
+matplotlib
+reportlab
+openpyxl
+sentence-transformers

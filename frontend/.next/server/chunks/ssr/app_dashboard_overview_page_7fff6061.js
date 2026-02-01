@@ -1,0 +1,3 @@
+module.exports=[98786,a=>{"use strict";var b=a.i(87924),c=a.i(72131);a.i(48871);var d=a.i(75205),e=a.i(46271);function f({data:a}){let f=(0,c.useRef)(null);return(0,c.useEffect)(()=>{if(!f.current||!a)return;let b=d.init(f.current),c={xAxis:{type:"category",data:a.dates},yAxis:{type:"value"},series:[{data:a.values,type:"line",smooth:!0,areaStyle:{}}]};return b.setOption(c),window.addEventListener("resize",()=>b.resize()),()=>b.dispose()},[a]),(0,b.jsx)(e.motion.div,{ref:f,className:"w-full h-96 rounded-3xl p-4 bg-black/30",initial:{opacity:0,y:40},animate:{opacity:1,y:0},transition:{duration:.8}})}a.s(["default",()=>f])}];
+
+//# sourceMappingURL=app_dashboard_overview_page_7fff6061.js.map
