@@ -88,6 +88,10 @@ def home():
         }
     }
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 def _analyze_dataset(df: pd.DataFrame, prompt: str | None) -> dict:
     """Core analysis logic with optimizations"""
     # Quick validation
