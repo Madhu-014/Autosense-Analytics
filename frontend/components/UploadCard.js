@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GeneratedDashboard from "./GeneratedDashboard";
 import DashboardModal from "./DashboardModal";
-import { getBackendUrl } from "../lib/api";
+import { ensureBackendUrl, getBackendUrl } from "../lib/api";
 
 export default function UploadCard() {
   const [file, setFile] = useState(null);
@@ -47,17 +47,21 @@ export default function UploadCard() {
     setPreviewLoading(true);
     setPreviewError("");
     try {
+      const backendUrl = ensureBackendUrl();
       const fd = new FormData();
       fd.append("file", f);
-      const res = await fetch(`${getBackendUrl()}/analyze`, {
+      const res = await fetch(`${backendUrl}/analyze`, {
         method: "POST",
         body: fd,
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || data.message || `Request failed (${res.status})`);
+      }
       setPreview(data);
     } catch (err) {
       console.error(err);
-      setPreviewError("Couldn’t analyze file for suggestions.");
+      setPreviewError(err.message || "Couldn’t analyze file for suggestions.");
     } finally {
       setPreviewLoading(false);
     }
@@ -241,6 +245,7 @@ export default function UploadCard() {
             if (!file) return;
             setLoading(true);
             try {
+              const backendUrl = ensureBackendUrl();
               // If we already have a preview analysis, refine with prompt or use it directly.
               if (preview && preview.dataset_id) {
                 let data = preview;
@@ -248,8 +253,11 @@ export default function UploadCard() {
                   const fd = new FormData();
                   fd.append("dataset_id", preview.dataset_id);
                   fd.append("prompt", prompt);
-                  const res = await fetch(`${getBackendUrl()}/analyze/prompt`, { method: "POST", body: fd });
-                  data = await res.json();
+                  const res = await fetch(`${backendUrl}/analyze/prompt`, { method: "POST", body: fd });
+                  data = await res.json().catch(() => ({}));
+                  if (!res.ok) {
+                    throw new Error(data.error || data.message || `Request failed (${res.status})`);
+                  }
                 }
                 setResult(data);
                 setOpenModal(true);
@@ -257,14 +265,17 @@ export default function UploadCard() {
                 const fd = new FormData();
                 fd.append("file", file);
                 if (prompt) fd.append("prompt", prompt);
-                const res = await fetch(`${getBackendUrl()}/analyze`, { method: "POST", body: fd });
-                const data = await res.json();
+                const res = await fetch(`${backendUrl}/analyze`, { method: "POST", body: fd });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                  throw new Error(data.error || data.message || `Request failed (${res.status})`);
+                }
                 setResult(data);
                 setOpenModal(true);
               }
             } catch (e) {
               console.error(e);
-              setResult({ error: "Failed to analyze file. Please try again." });
+              setResult({ error: e.message || "Failed to analyze file. Please try again." });
             } finally {
               setLoading(false);
             }
@@ -301,11 +312,15 @@ export default function UploadCard() {
           if (!result?.dataset_id) return;
           setLoading(true);
           try {
+            const backendUrl = ensureBackendUrl();
             const fd = new FormData();
             fd.append("dataset_id", result.dataset_id);
             if (promptText) fd.append("prompt", promptText);
-            const res = await fetch(`${getBackendUrl()}/analyze/prompt`, { method: "POST", body: fd });
-            const data = await res.json();
+            const res = await fetch(`${backendUrl}/analyze/prompt`, { method: "POST", body: fd });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              throw new Error(data.error || data.message || `Request failed (${res.status})`);
+            }
             setResult(data);
           } catch (e) {
             console.error(e);

@@ -6,6 +6,21 @@ export function getBackendUrl() {
   );
 }
 
+export function ensureBackendUrl() {
+  const url = getBackendUrl();
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    const isLocalHost = host === "localhost" || host === "127.0.0.1";
+    const isLocalBackend = url.includes("localhost") || url.includes("127.0.0.1");
+    if (!isLocalHost && isLocalBackend) {
+      throw new Error(
+        "Backend URL not configured. Set NEXT_PUBLIC_BACKEND_URL or NEXT_PUBLIC_API_URL to your deployed backend URL and redeploy."
+      );
+    }
+  }
+  return url;
+}
+
 export class APIError extends Error {
   constructor(message, status, data) {
     super(message);
@@ -45,6 +60,7 @@ export async function fetchWithRetry(url, options = {}, retries = 3, delay = 100
 }
 
 export async function uploadFile(file, prompt = "", onProgress = null) {
+  const backendUrl = ensureBackendUrl();
   const formData = new FormData();
   formData.append("file", file);
   if (prompt.trim()) {
@@ -83,7 +99,7 @@ export async function uploadFile(file, prompt = "", onProgress = null) {
       reject(new APIError("Upload cancelled", 0));
     });
 
-    xhr.open("POST", `${getBackendUrl()}/analyze`);
+    xhr.open("POST", `${backendUrl}/analyze`);
     xhr.send(formData);
   });
 }
