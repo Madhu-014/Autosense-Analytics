@@ -1,5 +1,9 @@
 export function getBackendUrl() {
-  return process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  return (
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:8000"
+  );
 }
 
 export class APIError extends Error {
